@@ -95,8 +95,7 @@ describe("FundMe", () => {
 		it("Should clear record", async () => {
 			const [owner] = await ethers.getSigners();
 			await fundMe.connect(owner).withdraw();
-			const response = await fundMe.addressToAmountFunded(funder.address);
-			expect(response).to.equal(0);
+			await expect(fundMe.funders(0)).to.be.reverted;
 		});
 
 		it("Should transfer funds to owner", async () => {
@@ -114,9 +113,52 @@ describe("FundMe", () => {
 				owner.address
 			);
 
+			const contractFinalBalance = await ethers.provider.getBalance(
+				fundMe.target
+			);
+
+			expect(contractFinalBalance).to.be.equals(0);
 			expect(ownerFinalBalance + fee).to.be.equals(
 				ownerInitialBalance + contractInitialBalance
 			);
+		});
+
+		it("Should work with multiple funders", async () => {
+			const funders = await ethers.getSigners();
+			for (let index = 2; index < funders.length; index++) {
+				// Skip owner and already funded funder
+				const signer = funders[index];
+				await fundMe
+					.connect(signer)
+					.fund({ value: ethers.parseEther("0.03") });
+			}
+			const owner = funders[0];
+			const ownerInitialBalance = await ethers.provider.getBalance(
+				owner.address
+			);
+			const contractInitialBalance = await ethers.provider.getBalance(
+				fundMe.target
+			);
+			const txnResponse = await fundMe.connect(owner).withdraw();
+			const txnReceipt = await txnResponse.wait();
+			const { fee } = txnReceipt;
+			const ownerFinalBalance = await ethers.provider.getBalance(
+				owner.address
+			);
+
+			const contractFinalBalance = await ethers.provider.getBalance(
+				fundMe.target
+			);
+
+			expect(contractFinalBalance).to.be.equals(0);
+			expect(ownerFinalBalance + fee).to.be.equals(
+				ownerInitialBalance + contractInitialBalance
+			);
+            await expect(fundMe.funders(0)).to.be.reverted;
+            for (let index = 0; index < funders.length; index++) {
+                const signer = funders[index];
+                expect(await fundMe.addressToAmountFunded(signer.address)).to.be.equals(0);
+            }
 		});
 	});
 
