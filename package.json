@@ -24,6 +24,7 @@
     "h-test": "hardhat test",
     "h-node": "hardhat node",
     "h-deploy": "hardhat ignition deploy",
-    "h-verify": "hardhat ignition verify"
+    "h-verify": "hardhat ignition verify",
+    "h-run": "hardhat run"
   }
 }
