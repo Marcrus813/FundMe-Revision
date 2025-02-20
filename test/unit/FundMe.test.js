@@ -4,15 +4,29 @@ const { ethers, ignition } = require("hardhat");
 const {
 	loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox/network-helpers");
+const {
+	networkConfig,
+	devChains,
+	mockPrams,
+} = require("../../helper-hardhat-config");
+
+const network = process.env.NETWORK || "hardhat";
+const localFlag = devChains.includes(network);
+
+!localFlag ? describe.skip : 
 
 describe("FundMe", () => {
 	let fundMe;
+	let fundMeAddress;
 	let mockV3Aggregator;
+	let mockV3AggregatorAddress;
 
 	async function deployContractFixture() {
 		const { fundMe, mockV3Aggregator } = await ignition.deploy(
 			fundMeModule
 		);
+		fundMeAddress = await fundMe.getAddress();
+		mockV3AggregatorAddress = await mockV3Aggregator.getAddress();
 		return { fundMe, mockV3Aggregator };
 	}
 
@@ -26,13 +40,13 @@ describe("FundMe", () => {
 	describe("Deployment", () => {
 		it("Should set `i_owner` to deployer", async () => {
 			const [deployer] = await ethers.getSigners();
-			const i_owner = await fundMe.i_owner();
+			const i_owner = await fundMe.getOwner();
 			expect(i_owner).to.equal(deployer);
 		});
 
 		it("Should set aggregator address correctly", async () => {
-			const priceFeedAddress = await fundMe.priceFeed();
-			expect(priceFeedAddress).to.equal(mockV3Aggregator.target);
+			const priceFeedAddress = await fundMe.getPriceFeed();
+			expect(priceFeedAddress).to.equal(mockV3AggregatorAddress);
 		});
 	});
 
@@ -41,13 +55,13 @@ describe("FundMe", () => {
 			const insufficientEth = ethers.parseEther("0.024"); // Initial answer is set to `200000000000`
 			await expect(
 				fundMe.fund({ value: insufficientEth })
-			).to.be.revertedWith("You need to spend more ETH!");
+			).to.be.revertedWithCustomError(fundMe, "FundMe__NotEnoughEth");
 		});
 		it("Should update funding record", async () => {
 			const sufficientEth = ethers.parseEther("0.03");
 			const [, , funder] = await ethers.getSigners();
 			await fundMe.connect(funder).fund({ value: sufficientEth });
-			const response = await fundMe.addressToAmountFunded(funder.address);
+			const response = await fundMe.getAddressToAmountFunded(funder.address);
 			expect(response).to.equal(sufficientEth);
 		});
 
@@ -55,7 +69,7 @@ describe("FundMe", () => {
 			const sufficientEth = ethers.parseEther("0.03");
 			const [, , funder] = await ethers.getSigners();
 			await fundMe.connect(funder).fund({ value: sufficientEth });
-			const response = await fundMe.funders(0);
+			const response = await fundMe.getFunder(0);
 			expect(response).to.equal(funder.address);
 		});
 
@@ -65,9 +79,9 @@ describe("FundMe", () => {
 			await fundMe.connect(funder0).fund({ value: sufficientEth });
 			await fundMe.connect(funder0).fund({ value: sufficientEth });
 			await fundMe.connect(funder1).fund({ value: sufficientEth });
-			const response0 = await fundMe.funders(0);
-			const response1 = await fundMe.funders(1);
-			const response2 = await fundMe.funders(2);
+			const response0 = await fundMe.getFunder(0);
+			const response1 = await fundMe.getFunder(1);
+			const response2 = await fundMe.getFunder(2);
 			expect(response0).to.equal(funder0.address);
 			expect(response1).to.equal(funder0.address);
 			expect(response2).to.equal(funder1.address);
@@ -95,7 +109,7 @@ describe("FundMe", () => {
 		it("Should clear record", async () => {
 			const [owner] = await ethers.getSigners();
 			await fundMe.connect(owner).withdraw();
-			await expect(fundMe.funders(0)).to.be.reverted;
+			await expect(fundMe.getFunder(0)).to.be.reverted;
 		});
 
 		it("Should transfer funds to owner", async () => {
@@ -104,7 +118,7 @@ describe("FundMe", () => {
 				owner.address
 			);
 			const contractInitialBalance = await ethers.provider.getBalance(
-				fundMe.target
+				fundMeAddress
 			);
 			const txnResponse = await fundMe.connect(owner).withdraw();
 			const txnReceipt = await txnResponse.wait();
@@ -114,7 +128,7 @@ describe("FundMe", () => {
 			);
 
 			const contractFinalBalance = await ethers.provider.getBalance(
-				fundMe.target
+				fundMeAddress
 			);
 
 			expect(contractFinalBalance).to.be.equals(0);
@@ -137,7 +151,7 @@ describe("FundMe", () => {
 				owner.address
 			);
 			const contractInitialBalance = await ethers.provider.getBalance(
-				fundMe.target
+				fundMeAddress
 			);
 			const txnResponse = await fundMe.connect(owner).withdraw();
 			const txnReceipt = await txnResponse.wait();
@@ -147,17 +161,17 @@ describe("FundMe", () => {
 			);
 
 			const contractFinalBalance = await ethers.provider.getBalance(
-				fundMe.target
+				fundMeAddress
 			);
 
 			expect(contractFinalBalance).to.be.equals(0);
 			expect(ownerFinalBalance + fee).to.be.equals(
 				ownerInitialBalance + contractInitialBalance
 			);
-            await expect(fundMe.funders(0)).to.be.reverted;
+            await expect(fundMe.getFunder(0)).to.be.reverted;
             for (let index = 0; index < funders.length; index++) {
                 const signer = funders[index];
-                expect(await fundMe.addressToAmountFunded(signer.address)).to.be.equals(0);
+                expect(await fundMe.getAddressToAmountFunded(signer.address)).to.be.equals(0);
             }
 		});
 	});

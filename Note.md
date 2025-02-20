@@ -1,5 +1,8 @@
 # Lesson 7 `FundMe` Note
 
+## Open source contribution
+- Github repo -> Issues -> Label: "Good first issue" / "Help wanted" etc.
+
 ## Setup
 
 -   Hardhat, hardhat-gas-reporter, solidity-coverage, solhint
@@ -19,8 +22,12 @@
                 -   After flag confirmed, pass the instance, ignition will figure out that its address is needed, then in options param, use `after`
     -   Code to get contract address:
         ```javascript
-        const priceFeedAddress = await fundMe.priceFeed();
-        expect(priceFeedAddress).to.equal(mockV3Aggregator.target);
+        const { fundMe, mockV3Aggregator } = await ignition.deploy(
+			fundMeModule
+		);
+		fundMeAddress = await fundMe.getAddress();
+		mockV3AggregatorAddress = await mockV3Aggregator.getAddress();
+		return { fundMe, mockV3Aggregator };
         ```
     -   Verification
         -   Add option `verify: true`
@@ -33,14 +40,15 @@
 -   Purpose
     -   Use `solc` to generate documentation
 
-## Testing
+## Unit Testing
 
 -   Staging and unit
     -   Unit focusing on smaller aspects, Staging focusing on general behavior, staging test thus should be last step of testing
 -   Migration from `hardhat-deploy`
     -   Since we are using `ignition` to deploy, differences are mainly about how to interact with the contract
         -   Getting address
-            -   `fundMe.target`, I got this from using debug terminal, seeing the address under property `target`, works fine so far
+            -   ~~`fundMe.target`, I got this from using debug terminal, seeing the address under property `target`, works fine so far~~
+            - Use `await contract.getAddress(contract)` where `contract` is a returned object from ignition script
         -   Connecting
             -   `await fundMe.connect(funder).fund({ value: sufficientEth });`
     -   Getting deployer
@@ -58,3 +66,7 @@
     -   Answer: No, one way to do it is get storage stack using `ethers.provider.getStorageAt(contract.address, index)`
         -   More detailed explanation
             -   Private referring to inaccessible to other contracts or external users by function call, but it is accessible through Etherscan or low-level methods like one mentioned above
+
+## Stage Testing
+- Differences
+    - Fixture will not be possible, mocks won't be needed
