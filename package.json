@@ -1,4 +1,5 @@
 {
+  "name": "hardhat_fund_me_revision",
   "devDependencies": {
     "@chainlink/contracts": "0.8.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
@@ -22,6 +23,7 @@
   "scripts": {
     "h-compile": "hardhat compile",
     "h-test": "hardhat test",
+    "h-test-s": "hardhat test --network sepolia",
     "h-node": "hardhat node",
     "h-deploy": "hardhat ignition deploy",
     "h-verify": "hardhat ignition verify",

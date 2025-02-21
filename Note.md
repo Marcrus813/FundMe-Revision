@@ -70,3 +70,9 @@
 ## Stage Testing
 - Differences
     - Fixture will not be possible, mocks won't be needed
+        - Using hardhat ignition: in `beforeEach`, do `ignition.deploy(contractModule)`, if already deployed, it will get us the contract
+    - Gas
+        - If owner calling `withdraw`, who's paying gas? Contract or owner
+            - See second stage test, it passes -> Owner pays
+- `ethers.getSigners`
+    - In hardhat, it will return array of the presets accounts, in test net, it will return pre-configured accounts: `hardhat.config.js: networks.sepolia.accounts`
