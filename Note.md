@@ -48,7 +48,7 @@
     -   Since we are using `ignition` to deploy, differences are mainly about how to interact with the contract
         -   Getting address
             -   ~~`fundMe.target`, I got this from using debug terminal, seeing the address under property `target`, works fine so far~~
-            - Use `await contract.getAddress(contract)` where `contract` is a returned object from ignition script
+            - Use `await contract.getAddress()` where `contract` is a returned object from ignition script
         -   Connecting
             -   `await fundMe.connect(funder).fund({ value: sufficientEth });`
     -   Getting deployer
@@ -58,7 +58,7 @@
     -   `await expect(fundMe.connect(nonOwner).withdraw()).to.be.revertedWithCustomError(fundMe, "FundMe__NotOwner");`
 -   How to test function calls are correctly routed to `fallback` or `receive`
 
-## Storage in Solidity(_Follow up note, for main body, see note of `Hardhat-Fund_me` repo on github_)
+## Storage in Solidity(_Follow up note, for main body, see note of `Hardhat-Fund-me` repo on github_)
 
 -   Array
     -   [2] stores its length, where spot "2" is determined by the contract, spot `keccak256(2)`(hashing the spot index) will be the starting point of the array elements
