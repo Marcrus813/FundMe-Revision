@@ -44,7 +44,7 @@ async function main() {
 			break;
 	}
 	
-	const funderInitialBalance = await ethers.provider.getBalance(
+	/*const funderInitialBalance = await ethers.provider.getBalance(
 		funder.address
 	);
 	console.log(
@@ -71,7 +71,7 @@ async function main() {
 	);
 	console.log(
 		`Owner final balance: ${ethers.formatEther(ownerFinalBalance)}`
-	);
+	);*/
 }
 
 main()

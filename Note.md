@@ -76,3 +76,11 @@
             - See second stage test, it passes -> Owner pays
 - `ethers.getSigners`
     - In hardhat, it will return array of the presets accounts, in test net, it will return pre-configured accounts: `hardhat.config.js: networks.sepolia.accounts`
+***
+*Following section is related to HTML-Fund-Me*
+***
+## Hardhat-task
+- Motivation
+  - In HTML project, need ABI and contract address to interact, hence wanted to copy the artifact files to front end project, wanted to automate the process, copy the files after ignition is complete, thus implemented the task, but it seems the deployment part is still buggy, did not fully understand hardhat task, so leaving it for now, as for auto copy, I will run the script manually for the time being.
+- Conclusion
+  - Tasks could be very helpful in future more complex projects.

@@ -4,7 +4,6 @@ const {
 	devChains,
 	mockPrams,
 } = require("../../helper-hardhat-config");
-
 module.exports = buildModule("FundMeModule", (m) => {
 	const network = process.env.NETWORK || "hardhat";
 	const localFlag = devChains.includes(network);

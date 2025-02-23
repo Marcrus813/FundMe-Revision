@@ -1,9 +1,8 @@
-const { UnmanagedSubscriber } = require("ethers");
-
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 require("@nomicfoundation/hardhat-ignition");
 require("hardhat-gas-reporter");
+require("./tasks/deploy-export");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
@@ -13,6 +12,8 @@ const ETHERSCAN_API_KEY =
 	process.env.ETHERSCAN_API_KEY || "YOUR_ETHERSCAN_API_KEY";
 const COINMARKETCAP_API_KEY =
 	process.env.COINMARKETCAP_API_KEY || "YOUR_COINMARKETCAP_API_KEY";
+
+
 
 module.exports = {
 	networks: {
