@@ -15,9 +15,13 @@ function exportArtifacts(chainId) {
 		"FundMeModule#FundMe.json"
 	);
 
-	const targetDir = path.join(
+	/*const targetDir = path.join(
 		__dirname,
 		"../../../HTML-fund-md-revision/artifacts"
+	);*/
+	const targetDir = path.join(
+		__dirname,
+		"../../Html-fund-me/artifacts"
 	);
 	try {
 		if (!fs.existsSync(targetDir)) {
@@ -50,7 +54,7 @@ function exportArtifacts(chainId) {
 
 async function main() {
 	exportArtifacts(31337);
-	exportArtifacts(11155111);
+	// exportArtifacts(11155111);
 }
 
 if (require.main === module) {
